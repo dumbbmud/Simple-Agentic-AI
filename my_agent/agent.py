@@ -73,7 +73,7 @@ APP_NAME = "weather_tutorial_app"
 USER_ID = "user_1"
 SESSION_ID = "session_001"
 
-async def init_session(app_name:str,user_id:str,session_id:str) -> InMemorySessionService:
+async def init_session(session_service, app_name:str,user_id:str,session_id:str) -> InMemorySessionService:
     session = await session_service.create_session(
         app_name=app_name,
         user_id=user_id,
@@ -82,7 +82,7 @@ async def init_session(app_name:str,user_id:str,session_id:str) -> InMemorySessi
     print(f"Session created: App='{app_name}', User='{user_id}', Session='{session_id}'")
     return session
 
-session = asyncio.run(init_session(APP_NAME,USER_ID,SESSION_ID))
+session = asyncio.run(init_session(session_service, APP_NAME,USER_ID,SESSION_ID))
 
 # --- Runner ---
 # Key Concept: Runner orchestrates the agent execution loop.
@@ -133,8 +133,105 @@ async def run_conversation():
                                        user_id=USER_ID,
                                        session_id=SESSION_ID)
 
-if __name__ == "__main__":
-    try:
-        asyncio.run(run_conversation())
-    except Exception as e:
-        print(f"An error occurred: {e}")
+# if __name__ == "__main__":
+#     try:
+#         asyncio.run(run_conversation())
+#     except Exception as e:
+#         print(f"An error occurred: {e}")
+
+# weather_agent_groq = None
+# runner_groq = None
+
+# try:
+#     weather_agent_groq = Agent(
+#         name="weather_agent_groq",
+#         model = LiteLlm(model="groq/llama-3.1-8b-instant"),
+#         description="Provide weather information using Groq.",
+#         instruction="You are a helpful weather assistant powered by llama-3.1-8b-instant. "
+#                     "Use the 'get_weather' tool for city weather requests. "
+#                     "Clearly present successful reports or polite error messages based on the tool's output status. ",
+#         tools=[get_weather], 
+#     )
+#     print(f"Agent '{weather_agent_groq.name}' created using model llama-3.1-8b-instant.")
+
+#     session_service_groq = InMemorySessionService()
+
+#     APP_NAME_GROQ = "weather_tutorial_app_groq"
+#     USER_ID_GROQ = "user_1_groq"
+#     SESSION_ID_GROQ = "session_001_groq"
+
+#     session_groq = asyncio.run(init_session(session_service_groq, APP_NAME_GROQ,USER_ID_GROQ,SESSION_ID_GROQ))
+
+#     runner_groq = Runner(
+#         agent = weather_agent_groq,
+#         app_name=APP_NAME_GROQ,
+#         session_service= session_service_groq
+#     )
+
+#     print(f"Runner created for agent '{runner_groq.agent.name}'.")
+
+#     print("\n--- Testing GROQ Agent ---")
+
+#     if __name__ == "__main__":
+#         try:
+#             asyncio.run(call_agent_async(query = "What's the weather in Tokyo?",
+#                          runner=runner_groq,
+#                           user_id=USER_ID_GROQ,
+#                           session_id=SESSION_ID_GROQ))
+#         except Exception as e:
+#             print(f"An error occurred: {e}")
+
+
+# except Exception as e:
+#     print(f"❌ Could not create or run Groq agent 'llama-3.1-8b-instant'. Check API Key and model name. Error: {e}")
+
+weather_agent_HF = None
+runner_HF = None
+
+
+#NOT HF BUT GROQ DIFFERENT MODEL!!
+try:
+    weather_agent_HF = Agent(
+        name="weather_agent_HF",
+        model=LiteLlm(model="groq/llama-3.3-70b-versatile"),
+        description="Provide weather information using hf. ",
+        instruction="You are a helpful weather assistant powered by HuggingFace. "
+                    "Use the 'get_weather' tool for city weather requests. "
+                    "DO NOT include step-by-step instructions. "
+                    "When the user asks for the weather, call the get_weather tool and **ONLY return the weather report in plain text** or give polite error messages based on the tool's output status. ",
+        tools=[get_weather], 
+    )
+    print(f"Agent '{weather_agent_HF.name}' created using model hf")
+
+    session_service_HF = InMemorySessionService()
+
+    APP_NAME_HF = "weather_tutorial_app_HF"
+    USER_ID_HF = "user_1_HF"
+    SESSION_ID_HF = "session_001_HF"
+
+    session_HF= asyncio.run(init_session(session_service_HF, APP_NAME_HF,USER_ID_HF,SESSION_ID_HF))
+
+    runner_HF = Runner(
+        agent = weather_agent_HF,
+        app_name=APP_NAME_HF,
+        session_service= session_service_HF
+    )
+
+    print(f"Runner created for agent '{runner_HF.agent.name}'.")
+
+    print("\n--- Testing HF Agent ---")
+
+    if __name__ == "__main__":
+        try:
+            asyncio.run(call_agent_async(query = "What's the weather in Tokyo?",
+                         runner=runner_HF,
+                          user_id=USER_ID_HF,
+                          session_id=SESSION_ID_HF))
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+
+except Exception as e:
+    print(f"❌ Could not create or run huggingFace agent huggingface/mistralai/Mistral-7B-Instruct-v0.2. Check API Key and model name. Error: {e}")
+
+
