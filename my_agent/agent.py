@@ -54,10 +54,12 @@ def get_weather(city: str) -> dict:
 
 
 AGENT_MODEL = MODEL_GEMINI_2_0_FLASH # Starting with Gemini
+MODEL_GROQ_LLAMA_INSTANT = "groq/llama-3.1-8b-instant"
+
 
 weather_agent = Agent(
     name="weather_agent_v1",
-    model=AGENT_MODEL, 
+    model=MODEL_GROQ_LLAMA_INSTANT, 
     description="Provides weather information for specific cities.",
     instruction="You are a helpful weather assistant. "
                 "When the user asks for the weather in a specific city, "
@@ -139,61 +141,65 @@ async def run_conversation():
 #     except Exception as e:
 #         print(f"An error occurred: {e}")
 
-# weather_agent_groq = None
-# runner_groq = None
+weather_agent_groq = None
+runner_groq = None
 
-# try:
-#     weather_agent_groq = Agent(
-#         name="weather_agent_groq",
-#         model = LiteLlm(model="groq/llama-3.1-8b-instant"),
-#         description="Provide weather information using Groq.",
-#         instruction="You are a helpful weather assistant powered by llama-3.1-8b-instant. "
-#                     "Use the 'get_weather' tool for city weather requests. "
-#                     "Clearly present successful reports or polite error messages based on the tool's output status. ",
-#         tools=[get_weather], 
-#     )
-#     print(f"Agent '{weather_agent_groq.name}' created using model llama-3.1-8b-instant.")
+MODEL_GROQ_LLAMA_INSTANT = "groq/llama-3.1-8b-instant"
 
-#     session_service_groq = InMemorySessionService()
+try:
+    weather_agent_groq = Agent(
+        name="weather_agent_groq",
+        model = LiteLlm(model=MODEL_GROQ_LLAMA_INSTANT),
+        description="Provide weather information using Groq.",
+        instruction="You are a helpful weather assistant powered by llama-3.1-8b-instant. "
+                    "Use the 'get_weather' tool for city weather requests. "
+                    "Clearly present successful reports or polite error messages based on the tool's output status. ",
+        tools=[get_weather], 
+    )
+    print(f"Agent '{weather_agent_groq.name}' created using model llama-3.1-8b-instant.")
 
-#     APP_NAME_GROQ = "weather_tutorial_app_groq"
-#     USER_ID_GROQ = "user_1_groq"
-#     SESSION_ID_GROQ = "session_001_groq"
+    session_service_groq = InMemorySessionService()
 
-#     session_groq = asyncio.run(init_session(session_service_groq, APP_NAME_GROQ,USER_ID_GROQ,SESSION_ID_GROQ))
+    APP_NAME_GROQ = "weather_tutorial_app_groq"
+    USER_ID_GROQ = "user_1_groq"
+    SESSION_ID_GROQ = "session_001_groq"
 
-#     runner_groq = Runner(
-#         agent = weather_agent_groq,
-#         app_name=APP_NAME_GROQ,
-#         session_service= session_service_groq
-#     )
+    session_groq = asyncio.run(init_session(session_service_groq, APP_NAME_GROQ,USER_ID_GROQ,SESSION_ID_GROQ))
 
-#     print(f"Runner created for agent '{runner_groq.agent.name}'.")
+    runner_groq = Runner(
+        agent = weather_agent_groq,
+        app_name=APP_NAME_GROQ,
+        session_service= session_service_groq
+    )
 
-#     print("\n--- Testing GROQ Agent ---")
+    print(f"Runner created for agent '{runner_groq.agent.name}'.")
 
-#     if __name__ == "__main__":
-#         try:
-#             asyncio.run(call_agent_async(query = "What's the weather in Tokyo?",
-#                          runner=runner_groq,
-#                           user_id=USER_ID_GROQ,
-#                           session_id=SESSION_ID_GROQ))
-#         except Exception as e:
-#             print(f"An error occurred: {e}")
+    print("\n--- Testing GROQ Agent ---")
+
+    # if __name__ == "__main__":
+    #     try:
+    #         asyncio.run(call_agent_async(query = "What's the weather in Tokyo?",
+    #                      runner=runner_groq,
+    #                       user_id=USER_ID_GROQ,
+    #                       session_id=SESSION_ID_GROQ))
+    #     except Exception as e:
+    #         print(f"An error occurred: {e}")
 
 
-# except Exception as e:
-#     print(f"❌ Could not create or run Groq agent 'llama-3.1-8b-instant'. Check API Key and model name. Error: {e}")
+except Exception as e:
+    print(f"❌ Could not create or run Groq agent 'llama-3.1-8b-instant'. Check API Key and model name. Error: {e}")
 
 weather_agent_HF = None
 runner_HF = None
+
+MODEL_GROQ_LLAMA_VERSATILE = "groq/llama-3.3-70b-versatile"
 
 
 #NOT HF BUT GROQ DIFFERENT MODEL!!
 try:
     weather_agent_HF = Agent(
         name="weather_agent_HF",
-        model=LiteLlm(model="groq/llama-3.3-70b-versatile"),
+        model=LiteLlm(model=MODEL_GROQ_LLAMA_VERSATILE),
         description="Provide weather information using hf. ",
         instruction="You are a helpful weather assistant powered by HuggingFace. "
                     "Use the 'get_weather' tool for city weather requests. "
@@ -221,17 +227,174 @@ try:
 
     print("\n--- Testing HF Agent ---")
 
-    if __name__ == "__main__":
-        try:
-            asyncio.run(call_agent_async(query = "What's the weather in Tokyo?",
-                         runner=runner_HF,
-                          user_id=USER_ID_HF,
-                          session_id=SESSION_ID_HF))
-        except Exception as e:
-            print(f"An error occurred: {e}")
+    # if __name__ == "__main__":
+    #     try:
+    #         asyncio.run(call_agent_async(query = "What's the weather in Tokyo?",
+    #                      runner=runner_HF,
+    #                       user_id=USER_ID_HF,
+    #                       session_id=SESSION_ID_HF))
+    #     except Exception as e:
+    #         print(f"An error occurred: {e}")
 
 
 except Exception as e:
     print(f"❌ Could not create or run huggingFace agent huggingface/mistralai/Mistral-7B-Instruct-v0.2. Check API Key and model name. Error: {e}")
+
+from typing import Optional 
+
+def say_hello(name: Optional[str] = None) -> str:
+    """Provides a simple greeting. If a name is provided, it will be used.
+
+    Args:
+        name (str, optional): The name of the person to greet. Defaults to a generic greeting if not provided.
+
+    Returns:
+        str: A friendly greeting message.
+    """
+
+    if name:
+        greeting = f"Hello, {name}!"
+        print(f"---Tool: say_hello called with name: {name} ---")
+    else:
+        greeting = "Hello there!"
+        print(f"--- TOol: say_hello called without a specific name (name_arg_value: {name}) ---")
+    
+    return greeting
+
+
+def say_goodbye() -> str:
+    """Provides a simple farewell message to conclude the conversation."""
+    print(f"--- Tool: say_goodbye called ---")
+    return "Goodbye! Have a great day."
+
+print("Greeting and Farewell tools defined.")
+
+
+greeting_agent = None
+
+try:
+    greeting_agent = Agent(
+        model = MODEL_GROQ_LLAMA_INSTANT,
+        name = "greeting_agent",
+        instruction = "You are the Greeting Agent. Your ONLY task is to provide a friendly greeting to the user. "
+                    "Use the 'say_hello' tool to generate the greeting. "
+                    "If the user provides their name, make sure to pass it to the tool. "
+                    "Do not engage in any other conversation or tasks.",
+        description = "Handles simple greetings and hellos using the 'say_hello' tool.",
+        tools = [say_hello],
+    )
+    print(f"✅ Agent '{greeting_agent.name}' created using model '{greeting_agent.model}'.")
+
+except Exception as e:
+    print(f"❌ Could not create Greeting agent. Check API Key ({greeting_agent.model}). Error: {e}")
+
+
+#---Farewell Agent
+
+farewell_agent = None
+
+try:
+    farewell_agent = Agent(
+        model = MODEL_GROQ_LLAMA_INSTANT,
+        name = "farewell_agent",
+        instruction="You are the Farewell Agent. Your ONLY task is to provide a polite goodbye message. "
+                    "Use the 'say_goodbye' tool when the user indicates they are leaving or ending the conversation "
+                    "(e.g., using words like 'bye', 'goodbye', 'thanks bye', 'see you'). "
+                    "Do not perform any other actions.",
+        description="Handles simple farewells and goodbyes using the 'say_goodbye' tool.",
+        tools = [say_goodbye],
+    )
+    print(f"✅ Agent '{farewell_agent.name}' created using model '{farewell_agent.model}'.")
+except Exception as e:
+    print(f"❌ Could not create Farewell agent. Check API Key ({farewell_agent.model}). Error: {e}")
+
+root_agent = None
+root_runner = None
+
+if greeting_agent and farewell_agent and 'get_weather' in globals():
+    root_agent_model = MODEL_GROQ_LLAMA_INSTANT
+
+    weather_agent_team = Agent(
+        name = "weather_agent_v2",
+        model = root_agent_model,
+        description="The main coordinator agent. Handles weather requests and delegates greetings/farewells to specialists.",
+        instruction="You are the main Weather Agent coordinating a team. Your primary responsibility is to provide weather information. "
+                    "Use the 'get_weather' tool ONLY for specific weather requests (e.g., 'weather in London'). "
+                    "You have specialized sub-agents: "
+                    "1. 'greeting_agent': Handles simple greetings like 'Hi', 'Hello'. Delegate to it for these. "
+                    "2. 'farewell_agent': Handles simple farewells like 'Bye', 'See you'. Delegate to it for these. "
+                    "Analyze the user's query. If it's a greeting, delegate to 'greeting_agent'. If it's a farewell, delegate to 'farewell_agent'. "
+                    "If it's a weather request, handle it yourself using 'get_weather'. "
+                    "For anything else, respond appropriately or state you cannot handle it.",
+        tools=[get_weather],
+        sub_agents=[farewell_agent, greeting_agent]
+    )
+    print(f"✅ Root Agent '{weather_agent_team.name}' created using model '{root_agent_model}' with sub-agents: {[sa.name for sa in weather_agent_team.sub_agents]}")
+
+else:
+    print("❌ Cannot create root agent because one or more sub-agents failed to initialize or 'get_weather' tool is missing.")
+    if not greeting_agent: print(" - Greeting Agent is missing.")
+    if not farewell_agent: print(" - Farewell Agent is missing.")
+    if 'get_weather' not in globals(): print(" - get_weather function is missing.")
+
+root_agent_var_name = 'root_agent' # Default name from Step 3 guide
+if 'weather_agent_team' in globals(): # Check if user used this name instead
+    root_agent_var_name = 'weather_agent_team'
+elif 'root_agent' not in globals():
+    print("⚠️ Root agent ('root_agent' or 'weather_agent_team') not found. Cannot define run_team_conversation.")
+    # Assign a dummy value to prevent NameError later if the code block runs anyway
+    root_agent = None # Or set a flag to prevent execution
+
+# Only define and run if the root agent exists
+if root_agent_var_name in globals() and globals()[root_agent_var_name]:
+    # Define the main async function for the conversation logic.
+    # The 'await' keywords INSIDE this function are necessary for async operations.
+    async def run_team_conversation():
+        print("\n--- Testing Agent Team Delegation ---")
+        session_service = InMemorySessionService()
+        APP_NAME = "weather_tutorial_agent_team"
+        USER_ID = "user_1_agent_team"
+        SESSION_ID = "session_001_agent_team"
+        session = await session_service.create_session(
+            app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
+        )
+        print(f"Session created: App='{APP_NAME}', User='{USER_ID}', Session='{SESSION_ID}'")
+
+        actual_root_agent = globals()[root_agent_var_name]
+        runner_agent_team = Runner( # Or use InMemoryRunner
+            agent=actual_root_agent,
+            app_name=APP_NAME,
+            session_service=session_service
+        )
+        print(f"Runner created for agent '{actual_root_agent.name}'.")
+
+        # --- Interactions using await (correct within async def) ---
+        await call_agent_async(query = "Hello there!",
+                               runner=runner_agent_team,
+                               user_id=USER_ID,
+                               session_id=SESSION_ID)
+        await call_agent_async(query = "What is the weather in New York?",
+                               runner=runner_agent_team,
+                               user_id=USER_ID,
+                               session_id=SESSION_ID)
+        await call_agent_async(query = "Thanks, bye!",
+                               runner=runner_agent_team,
+                               user_id=USER_ID,
+                               session_id=SESSION_ID)
+
+    if __name__ == "__main__": # Ensures this runs only when script is executed directly
+        print("Executing using 'asyncio.run()' (for standard Python scripts)...")
+        try:
+            # This creates an event loop, runs your async function, and closes the loop.
+            asyncio.run(run_team_conversation())
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+else:
+     # This message prints if the root agent variable wasn't found earlier
+    print("\n⚠️ Skipping agent team conversation execution as the root agent was not successfully defined in a previous step.")
+
+
+
 
 
