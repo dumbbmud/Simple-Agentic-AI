@@ -1,0 +1,5 @@
+MODEL_GEMINI_2_0_FLASH = "gemini-2.5-flash"
+MODEL_GROQ_LLAMA_INSTANT = "groq/llama-3.1-8b-instant"
+MODEL_GROQ_LLAMA_VERSATILE = "groq/llama-3.3-70b-versatile"
+
+AGENT_MODEL = MODEL_GEMINI_2_0_FLASH
